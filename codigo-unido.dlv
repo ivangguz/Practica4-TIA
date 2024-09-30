@@ -1,0 +1,30 @@
+% Facts
+caja(a). 
+caja(b). 
+caja(c).
+
+lugar(X) :- caja(X).
+lugar(mesa) :- true. % Always true
+
+% Fluents
+sobre(B,L) :- caja(B), lugar(L).
+ocupado(B) :- lugar(B).
+
+% Actions
+move(B,L) :- caja(B), lugar(L).
+
+% Executable conditions
+executable(move(B,L)) :- caja(B), lugar(L), not ocupado(B), not ocupado(L), B != L.
+
+% Inertial and causal effects
+sobre(B,L) :- move(B,L).
+ocupado(B) :- sobre(B1,B), caja(B).
+-sobre(B,L1) :- move(B,L), sobre(B,L1), L != L.
+
+% Initial State
+sobre(a,mesa). 
+sobre(b,mesa). 
+sobre(c,mesa).
+
+% Goal
+:- not sobre(a,b), sobre(b,c), sobre(c,mesa).

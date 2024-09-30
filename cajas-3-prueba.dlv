@@ -1,0 +1,43 @@
+% Hechos
+brazo(robotico).
+caja(a). 
+caja(b). 
+caja(c).
+
+lugar(X) :- caja(X).
+lugar(mesa) :- true. % Siempre verdadero
+
+% Fluentes
+sobre(B,L) :- caja(B), lugar(L).  % Una caja B está sobre un lugar L
+ocupado(L) :- sobre(B,L), caja(B).  % L está ocupado si hay una caja B sobre ella
+coger(B) :- puede_agarrar(B).     % Acción de agarrar una caja
+
+% Acciones
+soltar(B,L) :- brazo(robotico), caja(B), lugar(L), not ocupado(L), not sobre(B,L).  % Soltar una caja B en un lugar L
+
+puede_agarrar(B) :- brazo(robotico), caja(B).  % El brazo puede agarrar una caja
+
+% Condiciones ejecutables
+executable(coger(B)) :- caja(B), not ocupado(B).   % Acción de coger una caja ejecutable
+executable(soltar(B,L)) :- brazo(robotico), caja(B), lugar(L), not ocupado(L), not sobre(B,L).  % Acción de soltar una caja ejecutable
+
+% Efectos inerciales y causales
+sobre(B,L) :- soltar(B,L).  % Cuando sueltas B en L, B ahora está sobre L
+ocupado(L) :- sobre(B,L), caja(B).  % L se convierte en un lugar ocupado si hay una caja B sobre ella
+
+% Estado inicial
+sobre(a,mesa). 
+sobre(b,mesa). 
+sobre(c,mesa).
+
+% Apilamiento de cajas en el orden correcto
+% Restricciones para el apilamiento correcto
+:- soltar(b,a), not sobre(b,a).  % Si se suelta b en a, debe estar sobre a
+:- soltar(c,b), not sobre(c,b).  % Si se suelta c en b, debe estar sobre b
+
+% Asegurar que solo se apilen en el orden correcto
+:- sobre(X,Y), caja(X), caja(Y), 
+   (X = b, Y != a; X = c, Y != b).
+
+% Mostrar solo las acciones de apilamiento
+#show sobre/2.  % Muestra las relaciones de apilamiento

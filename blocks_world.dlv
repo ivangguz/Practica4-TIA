@@ -1,0 +1,26 @@
+% Facts
+caja(a). caja(b). caja(c).
+
+% Locations
+lugar(X) :- caja(X).
+lugar(mesa).
+
+% Fluents
+sobre(B,L) :- caja(B), lugar(L).
+ocupado(B) :- lugar(B).
+
+% Actions
+executable(move(B,L)) :- caja(B), lugar(L), not ocupado(B), not ocupado(L), B != L.
+
+% Effects of actions
+ocupado(B) :- sobre(B1,B), caja(B).
+sobre(B,L) :- move(B,L).
+-sobre(B,L1) :- move(B,L), sobre(B,L1), L != L1.
+
+% Initial conditions
+sobre(a,mesa).
+sobre(b,mesa).
+sobre(c,mesa).
+
+% Goal (Constraint)
+:- not sobre(a,b), not sobre(b,c), not sobre(c,mesa).

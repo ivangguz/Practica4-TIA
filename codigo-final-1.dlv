@@ -1,0 +1,52 @@
+% Hechos
+brazo(robotico).
+caja(a). 
+caja(b). 
+caja(c).
+caja(d).
+caja(e).
+caja(f).
+
+lugar(X) :- caja(X).
+lugar(mesa) :- true. % Siempre verdadero
+
+% Fluentes
+sobre(B,L) :- caja(B), lugar(L).  % Una caja B está sobre un lugar L
+ocupado(B) :- lugar(B).           % Un lugar B está ocupado
+coger(B) :- puede_agarrar(B).     % Acción de agarrar una caja
+
+% Acciones
+move(B,L) :- caja(B), lugar(L).   % Mover una caja B a un lugar L
+soltar(B,L) :- brazo(robotico), caja(B), lugar(L).  % Soltar una caja B en un lugar L
+
+puede_agarrar(B) :- brazo(robotico), caja(B).  % El brazo puede agarrar una caja
+
+% Condiciones ejecutables
+executable(coger(B)) :- caja(B), not ocupado(B).   % Acción de coger una caja ejecutable
+executable(move(B,L)) :- caja(B), lugar(L), not ocupado(B), not ocupado(L), B != L.  % Acción de mover
+executable(soltar(B,L)) :- brazo(robotico), caja(B), lugar(L).  % Acción de soltar una caja ejecutable
+
+% Efectos inerciales y causales
+sobre(B,L) :- move(B,L).  % Cuando mueves una caja B a L, ahora está sobre L
+ocupado(L) :- sobre(B,L), caja(B).  % L está ocupado si hay una caja B sobre ella
+-sobre(B,L1) :- move(B,L), sobre(B,L1), L != L.  % La caja B ya no está sobre L1 si se mueve a L
+
+% Efecto de soltar una caja
+sobre(B,L) :- soltar(B,L).  % Cuando sueltas B en L, B ahora está sobre L
+ocupado(L) :- sobre(B,L), caja(B).  % L se convierte en un lugar ocupado si hay una caja B sobre ella
+
+% Estado inicial
+sobre(a,mesa). 
+sobre(b,mesa). 
+sobre(c,mesa).
+sobre(d,mesa).
+sobre(e,mesa).
+sobre(f,mesa).
+
+% Apilamiento de cajas en el nuevo orden
+:- 
+    not sobre(f,e), soltar(e,f), 
+    not sobre(e,d), soltar(d,e), 
+    not sobre(d,c), soltar(c,d), 
+    not sobre(c,b), soltar(b,c), 
+    not sobre(b,a), soltar(a,b).
